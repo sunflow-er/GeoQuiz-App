@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">GeoQuiz</string>
+    <string name="question_text">캔버라는 호주의 수도이다</string>
+    <string name="true_button">true</string>
+    <string name="false_button">false</string>
+    <string name="correct_toast">정답!</string>
+    <string name="incorrect_toast">오답!</string>
+
+</resources>
