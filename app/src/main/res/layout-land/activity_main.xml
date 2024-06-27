@@ -17,14 +17,14 @@
     <TextView
         android:id="@+id/question_text_view"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="100dp"
         android:gravity="center"
         android:textSize="20sp"
         tools:text="@string/question_australia" />
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="70dp"
         android:orientation="horizontal"
         android:gravity="center"
         android:padding="10dp">
@@ -51,7 +51,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="70dp"
         android:orientation="horizontal"
         android:gravity="center">
 
@@ -59,9 +59,10 @@
             android:id="@+id/prev_button"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:layout_marginEnd="30dp"
+            android:src="@drawable/arrow_left"
             android:contentDescription="Previous Button"
-            android:src="@drawable/arrow_left" />
+            android:layout_marginEnd="30dp"
+            />
 
         <ImageButton
             android:id="@+id/next_button"
