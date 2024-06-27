@@ -16,6 +16,7 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import androidx.lifecycle.ReportFragment.Companion.reportFragment
+import androidx.lifecycle.ViewModelProvider
 import org.javaapp.geoquiz.databinding.ActivityMainBinding
 
 private const val TAG = "MainActivity"
@@ -28,24 +29,27 @@ class MainActivity : AppCompatActivity() {
     private lateinit var nextButton: ImageButton
     private lateinit var prevButton: ImageButton
 
-    private val questionBank = listOf(
-        Question(R.string.question_australia, true, false),
-        Question(R.string.question_oceans, true, false),
-        Question(R.string.question_mideast, false, false),
-        Question(R.string.question_africa, false, false),
-        Question(R.string.question_americas, true, false),
-        Question(R.string.question_asia, true, false)
-    )
-
-    private var currentIndex = 0
-
-    private val questionNumber  = questionBank.size // 총 문제 수
-    private var correctNumber  = 0 // 맞춘 문제 수
+    private val quizViewModel : QuizViewModel by lazy {
+        ViewModelProvider(this).get(QuizViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate(Bundle?) called")
         setContentView(R.layout.activity_main)
+        
+//        // 현재 액티비티(MainActivity)를 QuizViewModel 인스턴스와 연결
+//        val provider : ViewModelProvider = ViewModelProvider(this)
+//        /*
+//        this : ViewModel이 연결될 Activity 또는 Fragment를 가리킨다.
+//        provider : ViewModel 객체를 생성하거나 이미 생성된 ViewModel을 반환하는 역할
+//         */
+//        val quizViewModel = provider.get(QuizViewModel::class.java)
+//        /*
+//        get() : 지정된 클래스의 ViewModel 인스턴스를 반환한다. 이미 있으면 그것을 반환, 없으면 새로 생성하여 반환
+//        QuizViewModel::class.java : 가져올 ViewModel의 클래스
+//         */
+//        Log.d(TAG, "Got a QuizViewModel : $quizViewModel")
 
         scoreTextView = findViewById(R.id.score_text_view)
         questionTextView = findViewById(R.id.question_text_view)
@@ -71,16 +75,12 @@ class MainActivity : AppCompatActivity() {
         })
 
         nextButton.setOnClickListener { view: View ->
-            currentIndex = (currentIndex + 1) % questionBank.size
+            quizViewModel.moveToNext()
             updateQuestion()
         }
 
         prevButton.setOnClickListener {
-            currentIndex = if (currentIndex == 0) {
-                questionBank.size - 1
-            } else {
-                (currentIndex - 1) % questionBank.size
-            }
+            quizViewModel.moveToPrev()
             updateQuestion()
         }
 
@@ -113,11 +113,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun updateQuestion() {
-        val questionTextResId = questionBank[currentIndex].textResId
+        val questionTextResId = quizViewModel.currentQuestionText
         questionTextView.setText(questionTextResId)
 
         // 이미 맞춘 문제일 경우 버튼 비활성화(숨기기)
-        if (questionBank[currentIndex].isCorrect) {
+        if (quizViewModel.currentQuestionCorrectness) {
             trueButton.isVisible = false
             falseButton.isVisible = false
         } else {
@@ -126,18 +126,18 @@ class MainActivity : AppCompatActivity() {
         }
 
         // 점수 표시
-        scoreTextView.setText(String.format("점수 : %.2f  (%d / %d)", correctNumber.toDouble()/questionNumber.toDouble() * 100, correctNumber, questionNumber))
+        scoreTextView.setText(String.format("점수 : %.2f  (%d / %d)", quizViewModel.correctNumber.toDouble()/quizViewModel.questionNumber.toDouble() * 100, quizViewModel.correctNumber, quizViewModel.questionNumber))
     }
 
     private fun checkAnswer(userAnswer: Boolean) {
-        val correctAnswer = questionBank[currentIndex].answer
+        val correctAnswer = quizViewModel.currentQuestionAnswer
 
         val messageResId = if (userAnswer == correctAnswer) {
-            questionBank[currentIndex].isCorrect = true
-            correctNumber++
+            quizViewModel.currentQuestionCorrectness = true
+            quizViewModel.correctNumber++
             R.string.correct_toast
         } else {
-            questionBank[currentIndex].isCorrect = false
+            quizViewModel.currentQuestionCorrectness = false
             R.string.incorrect_toast
         }
 
