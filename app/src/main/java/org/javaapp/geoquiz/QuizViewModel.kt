@@ -30,7 +30,6 @@ class QuizViewModel : ViewModel() {
     val questionNumber = questionBank.size
     var correctNumber = 0
 
-
     val currentQuestionAnswer : Boolean
         get() = questionBank[currentIndex].answer
 
@@ -39,7 +38,7 @@ class QuizViewModel : ViewModel() {
 
     var currentQuestionCorrectness : Boolean
         get() = questionBank[currentIndex].isCorrect
-        set(value) { questionBank[currentIndex].isCorrect = value}
+        set(value) { questionBank[currentIndex].isCorrect = value }
 
     fun moveToNext() {
         currentIndex = (currentIndex + 1) % questionBank.size

@@ -19,7 +19,8 @@ import androidx.lifecycle.ReportFragment.Companion.reportFragment
 import androidx.lifecycle.ViewModelProvider
 import org.javaapp.geoquiz.databinding.ActivityMainBinding
 
-private const val TAG = "MainActivity"
+private const val TAG = "MainActivity" // 로그 확인용 태그
+private const val KEY_INDEX = "index" // Bundle 객체에 저장될 데이터의 키로 사용
 
 class MainActivity : AppCompatActivity() {
     private lateinit var scoreTextView : TextView
@@ -37,6 +38,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate(Bundle?) called")
         setContentView(R.layout.activity_main)
+
+        // Bundle 객체에 저장된 값을 확인
+        val currentIndex = savedInstanceState?.getInt(KEY_INDEX, 0) ?: 0
+        // ViewModel에 정보 전달
+        quizViewModel.currentIndex = currentIndex
         
 //        // 현재 액티비티(MainActivity)를 QuizViewModel 인스턴스와 연결
 //        val provider : ViewModelProvider = ViewModelProvider(this)
@@ -102,6 +108,12 @@ class MainActivity : AppCompatActivity() {
         Log.d(TAG, "onPause() called")
     }
 
+    override fun onSaveInstanceState(savedInstanceState: Bundle) {
+        super.onSaveInstanceState(savedInstanceState)
+        Log.d(TAG, "onSaveInstanceState")
+        savedInstanceState.putInt(KEY_INDEX, quizViewModel.currentIndex) // currentIndex의 값을 Bundle 객체에 저장
+    }
+
     override fun onStop() {
         super.onStop()
         Log.d(TAG, "onStop() called")
@@ -141,7 +153,6 @@ class MainActivity : AppCompatActivity() {
             R.string.incorrect_toast
         }
 
-        Toast.makeText(this, messageResId, Toast.LENGTH_SHORT)
-            .show() // Activity는 Context의 하위 클래스이므로 this를 사용할 수 있다.
+        Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show() // Activity는 Context의 하위 클래스이므로 this를 사용할 수 있다.
     }
 }
