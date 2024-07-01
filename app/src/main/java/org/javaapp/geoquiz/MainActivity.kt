@@ -1,6 +1,8 @@
 package org.javaapp.geoquiz
 
+import android.app.Activity
 import android.app.ProgressDialog.show
+import android.content.Intent
 import android.media.Image
 import android.os.Bundle
 import android.util.Log
@@ -21,6 +23,7 @@ import org.javaapp.geoquiz.databinding.ActivityMainBinding
 
 private const val TAG = "MainActivity" // 로그 확인용 태그
 private const val KEY_INDEX = "index" // Bundle 객체에 저장될 데이터의 키로 사용
+private const val REQUEST_CODE_CHEAT = 0 // 요청코드로 사용
 
 class MainActivity : AppCompatActivity() {
     private lateinit var scoreTextView : TextView
@@ -29,6 +32,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var falseButton: Button
     private lateinit var nextButton: ImageButton
     private lateinit var prevButton: ImageButton
+    private lateinit var cheatButton: Button
 
     private val quizViewModel : QuizViewModel by lazy {
         ViewModelProvider(this).get(QuizViewModel::class.java)
@@ -63,6 +67,7 @@ class MainActivity : AppCompatActivity() {
         falseButton = findViewById(R.id.false_button)
         nextButton = findViewById(R.id.next_button)
         prevButton = findViewById(R.id.prev_button)
+        cheatButton = findViewById(R.id.cheat_button)
 
         questionTextView.setOnClickListener {
             nextButton.performClick()
@@ -90,7 +95,26 @@ class MainActivity : AppCompatActivity() {
             updateQuestion()
         }
 
+        cheatButton.setOnClickListener {
+            // CheatActivity를 시작시킨다.
+            val answer = quizViewModel.currentQuestionAnswer
+            val intent = CheatActivity.newIntent(this@MainActivity, answer)
+            startActivityForResult(intent, REQUEST_CODE_CHEAT)
+        }
+
         updateQuestion()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if (resultCode != Activity.RESULT_OK) {
+            return
+        }
+
+        if (requestCode == REQUEST_CODE_CHEAT) {
+            quizViewModel.currentQuestionIsCheated = data?.getBooleanExtra(EXTRA_IS_SHOWN, false) ?: false
+        }
     }
 
     override fun onStart() {
@@ -144,13 +168,19 @@ class MainActivity : AppCompatActivity() {
     private fun checkAnswer(userAnswer: Boolean) {
         val correctAnswer = quizViewModel.currentQuestionAnswer
 
-        val messageResId = if (userAnswer == correctAnswer) {
-            quizViewModel.currentQuestionCorrectness = true
-            quizViewModel.correctNumber++
-            R.string.correct_toast
-        } else {
-            quizViewModel.currentQuestionCorrectness = false
-            R.string.incorrect_toast
+        val messageResId = when {
+            quizViewModel.currentQuestionIsCheated -> {
+                R.string.judgement_toast
+            }
+            userAnswer == correctAnswer -> {
+                quizViewModel.currentQuestionCorrectness = true
+                quizViewModel.correctNumber++
+                R.string.correct_toast
+            }
+            else -> {
+                quizViewModel.currentQuestionCorrectness = false
+                R.string.incorrect_toast
+            }
         }
 
         Toast.makeText(this, messageResId, Toast.LENGTH_SHORT).show() // Activity는 Context의 하위 클래스이므로 this를 사용할 수 있다.
