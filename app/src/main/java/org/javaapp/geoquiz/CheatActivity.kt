@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
@@ -19,6 +20,7 @@ private const val EXTRA_ANSWER = "org.javaapp.geoquiz.answer_is_true" // 엑스�
 class CheatActivity : AppCompatActivity() {
     private lateinit var answerTextView: TextView
     private lateinit var showAnswerButton : Button
+    private lateinit var apiLevelTextView : TextView
 
     private val cheatViewModel : CheatViewModel by lazy {
         ViewModelProvider(this).get(CheatViewModel::class.java)
@@ -33,10 +35,14 @@ class CheatActivity : AppCompatActivity() {
 
         answerTextView = findViewById(R.id.answer_text_view)
         showAnswerButton = findViewById(R.id.show_answer_button)
+        apiLevelTextView = findViewById(R.id.API_level_text_view)
+
         showAnswerButton.setOnClickListener {
             cheatViewModel.isCheated = true
             showUI(cheatViewModel.isCheated)
         }
+
+        apiLevelTextView.append("API level : ${Build.VERSION.SDK_INT}")
 
         showUI(cheatViewModel.isCheated)
     }

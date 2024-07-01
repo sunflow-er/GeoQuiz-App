@@ -10,7 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="center">
+        android:gravity="center"
+        android:layout_marginBottom="10dp">
 
         <TextView
             android:id="@+id/score_text_view"
@@ -18,7 +19,8 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:textSize="20sp"
-            tools:text="점수 : 0.00 (0/10)" />
+            tools:text="점수 : 0.00 (0/10)"
+            android:layout_marginStart="90dp"/>
 
         <Button
             android:id="@+id/cheat_button"
@@ -28,13 +30,23 @@
             android:layout_marginStart="30dp"
             />
 
+        <TextView
+            android:id="@+id/cheat_count_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:textStyle="italic"
+            tools:text="커닝 횟수 :  0 / 3"
+            android:layout_marginStart="10dp"
+            />
+
     </LinearLayout>
 
 
     <TextView
         android:id="@+id/question_text_view"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="80dp"
         android:gravity="center"
         android:textSize="20sp"
         tools:text="@string/question_australia" />

@@ -31,6 +31,18 @@ class QuizViewModel : ViewModel() {
     val questionNumber = questionBank.size
     var correctNumber = 0
 
+    val cheatCount : Int
+        get() {
+            var count : Int = 0
+            for (question in questionBank) {
+                if (question.isCheated == true) {
+                    count++
+                }
+            }
+            return count
+        }
+
+
     val currentQuestionAnswer : Boolean
         get() = questionBank[currentIndex].answer
 
@@ -44,6 +56,10 @@ class QuizViewModel : ViewModel() {
     var currentQuestionIsCheated : Boolean
         get() = questionBank[currentIndex].isCheated
         set(value) { questionBank[currentIndex].isCheated = value}
+
+    var currentQuestionIsMarked : Boolean
+        get() = questionBank[currentIndex].isMarked
+        set(value) { questionBank[currentIndex].isMarked = value }
 
     fun moveToNext() {
         currentIndex = (currentIndex + 1) % questionBank.size

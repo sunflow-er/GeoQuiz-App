@@ -17,6 +17,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
@@ -36,6 +37,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var nextButton: ImageButton
     private lateinit var prevButton: ImageButton
     private lateinit var cheatButton: Button
+    private lateinit var cheatCountTextView: TextView
 
     private val quizViewModel : QuizViewModel by lazy {
         ViewModelProvider(this).get(QuizViewModel::class.java)
@@ -72,6 +74,7 @@ class MainActivity : AppCompatActivity() {
         nextButton = findViewById(R.id.next_button)
         prevButton = findViewById(R.id.prev_button)
         cheatButton = findViewById(R.id.cheat_button)
+        cheatCountTextView = findViewById(R.id.cheat_count_text_view)
 
         questionTextView.setOnClickListener {
             nextButton.performClick()
@@ -79,12 +82,14 @@ class MainActivity : AppCompatActivity() {
 
         trueButton.setOnClickListener { view: View ->
             checkAnswer(true)
+            quizViewModel.currentQuestionIsMarked = true
             updateQuestion() // UI 업데이트
         }
 
         falseButton.setOnClickListener(object : View.OnClickListener {
             override fun onClick(v: View?) {
                 checkAnswer(false)
+                quizViewModel.currentQuestionIsMarked = true
                 updateQuestion() // UI 업데이트
             }
         })
@@ -136,6 +141,7 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         Log.d(TAG, "onResume() called")
+        updateQuestion()
     }
 
     override fun onPause() {
@@ -164,16 +170,47 @@ class MainActivity : AppCompatActivity() {
         questionTextView.setText(questionTextResId)
 
         // 이미 맞춘 문제일 경우 버튼 비활성화(숨기기)
-        if (quizViewModel.currentQuestionCorrectness) {
-            trueButton.isVisible = false
-            falseButton.isVisible = false
-        } else {
-            trueButton.isVisible = true
-            falseButton.isVisible = true
+        if (quizViewModel.currentQuestionIsCheated) { // 커닝
+            trueButton.visibility = View.INVISIBLE
+            falseButton.visibility = View.INVISIBLE
+            cheatButton.visibility = View.INVISIBLE
+            cheatCountTextView.visibility = View.VISIBLE
+            questionTextView.setBackgroundColor(ContextCompat.getColor(this, R.color.cheated))
         }
+        else if (quizViewModel.currentQuestionIsMarked && quizViewModel.currentQuestionCorrectness) { // 채점 & 정답
+            trueButton.visibility = View.INVISIBLE
+            falseButton.visibility = View.INVISIBLE
+            cheatButton.visibility = View.INVISIBLE
+            cheatCountTextView.visibility = View.INVISIBLE
+            questionTextView.setBackgroundColor(ContextCompat.getColor(this, R.color.correct))
+        } else if (quizViewModel.currentQuestionIsMarked && !(quizViewModel.currentQuestionCorrectness) ) { // 채점 & 오답
+            trueButton.visibility = View.INVISIBLE
+            falseButton.visibility = View.INVISIBLE
+            cheatButton.visibility = View.INVISIBLE
+            cheatCountTextView.visibility = View.INVISIBLE
+            questionTextView.setBackgroundColor(ContextCompat.getColor(this, R.color.incorrect))
+        } else { // 아무것도 하지 않음
+            trueButton.visibility = View.VISIBLE
+            falseButton.visibility = View.VISIBLE
+            cheatButton.visibility = View.VISIBLE
+            cheatCountTextView.visibility = View.VISIBLE
+            questionTextView.setBackgroundColor(ContextCompat.getColor(this, R.color.white))
+        }
+
 
         // 점수 표시
         scoreTextView.setText(String.format("점수 : %.2f  (%d / %d)", quizViewModel.correctNumber.toDouble()/quizViewModel.questionNumber.toDouble() * 100, quizViewModel.correctNumber, quizViewModel.questionNumber))
+
+        // 커닝 횟수가 3회 이상일 경우
+        val cheatCount = quizViewModel.cheatCount
+        if (cheatCount > 3) {
+            cheatButton.isVisible = false // cheatButton 비활성화
+            cheatCountTextView.setText("최대 커닝 횟수를 초과하였습니다.")
+        } else {
+            cheatCountTextView.setText("커닝 횟수 : ${cheatCount}/3")
+        }
+
+
     }
 
     private fun checkAnswer(userAnswer: Boolean) {
