@@ -1,5 +1,6 @@
 package org.javaapp.geoquiz
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -22,6 +23,7 @@ class CheatActivity : AppCompatActivity() {
     private val cheatViewModel : CheatViewModel by lazy {
         ViewModelProvider(this).get(CheatViewModel::class.java)
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
